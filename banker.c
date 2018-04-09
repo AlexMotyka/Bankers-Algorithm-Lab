@@ -18,11 +18,6 @@
 #define NUM_CUSTOMERS 5
 #define NUM_RESOURCES 3
 
-//mutex locks
-pthread_mutex_t mutexavail;
-pthread_mutex_t mutexalloc;
-pthread_mutex_t mutexneed;
-
 // Available amount of each resource
 int available[NUM_RESOURCES];
 
@@ -35,6 +30,10 @@ int allocation[NUM_CUSTOMERS][NUM_RESOURCES];
 // Remaining need of each customer
 int need[NUM_CUSTOMERS][NUM_RESOURCES];
 
+//mutex locks
+pthread_mutex_t mutexavail;
+pthread_mutex_t mutexalloc;
+pthread_mutex_t mutexneed;
 
 int request_res(int n_customer, int request[]);
 int release_res(int n_customer, int request[]);
@@ -184,7 +183,7 @@ void *thread_create(void *cno){
     int i,j,request[NUM_RESOURCES],request_flag=0;
     int cust_no = (int)cno;
 
-    //Create a request of random size(always less than the maximum)
+    //Create a request of random size(always less than the maximum possible)
     for(i=0;i<NUM_RESOURCES;i++){
         request[i] = rand() % available[i];
     }
@@ -192,10 +191,10 @@ void *thread_create(void *cno){
     //if the request wasn't safe
     if(request_res(cust_no,request)<0){
 
-        printf("\n Customer number is %d ", cust_no);
+        printf("\n Customer number is %d and its resources are:", cust_no);
 
         for(j=0;j<NUM_RESOURCES;j++){
-
+            //print the values in the request
             printf("%d ", request[j]);
         }
         printf("DENIED\n");
@@ -203,7 +202,7 @@ void *thread_create(void *cno){
     }else{
 
         request_flag = 1;
-        printf("\n Customer number is %d ", cust_no);
+        printf("\n Customer number is %d and its resources are:", cust_no);
 
         for(j=0;j<NUM_RESOURCES;j++){
 
@@ -294,7 +293,7 @@ int main(int argc, char **argv){
             pthread_create(&thread_id,NULL,thread_create,(void *)j); //create our threads and see if we can accept the requests
         }
     }
-
+    sleep(1);//this ensures the next print statment doesn't fire early
     printf("\n Resources successfully assigned.");
 
     return 0;
